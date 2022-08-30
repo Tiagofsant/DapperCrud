@@ -7,15 +7,17 @@ namespace DapperCrud.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class Pessoa : ControllerBase
+    public class PessoaController : ControllerBase
     {
         private readonly IConfiguration _config;
-        public Pessoa(IConfiguration config)
+        public PessoaController(IConfiguration config)
         {
             _config = config;
         }
+
+        // TESTED - ALL OK
         [HttpGet]   //GET METHOD
-    
+
         // SELECT ALL OF THE PERSON TABLE - QUERY ASYNC
         public async Task<ActionResult<List<Pessoa>>> SelectAllPessoas()
         {
@@ -24,15 +26,20 @@ namespace DapperCrud.Controllers
             return Ok(pessoas);
         }
 
+
+        // TESTED - ALL OK
         //SELECT ALL OF THE DEFINED TABLE WITH ID - QUERY FIRST
 
         [HttpGet("{idPessoa}")]
         public async Task<ActionResult<Pessoa>> SelectAllPessoas(int idPessoa)
         {
             using var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
-            var pessoa = await connection.QueryFirstAsync<Pessoa>("select * from CadPessoa where id = @Id", new { Id = idPessoa });
+            var pessoa = await connection.QueryFirstAsync<Pessoa>("select * from CadPessoa where idPessoa = @Id", new { Id = idPessoa });
             return Ok(pessoa);
         }
+
+
+        // TESTED - ALL OK
 
         [HttpPost]   //POST METHOD
 
@@ -40,30 +47,32 @@ namespace DapperCrud.Controllers
         public async Task<ActionResult<List<Pessoa>>> CriaPessoas(Pessoa pessoa)
         {
             using var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
-            await connection.ExecuteAsync("insert into CadPessoa (nomePessoa, sobrenomenomePessoa, emailPessoa, enderecoPessoa, telefonePessoa, nascimentoPessoa) " +
-                "value (@nomePessoa, @sobrenomePessoa, @emailPessoa, @enderecoPessoa, @telefonePessoa, @nascimentoPessoa)", pessoa);
+            await connection.ExecuteAsync("insert into CadPessoa (idPessoa, nomePessoa, sobrenomePessoa, emailPessoa, enderecoPessoa, telefonePessoa, nascimentoPessoa) values (@idPessoa, @nomePessoa, @sobrenomePessoa, @emailPessoa, @enderecoPessoa, @telefonePessoa, @nascimentoPessoa)", pessoa);
             return Ok(await SelectAllPessoas(connection));
         }
 
+       
+        // TESTED - ALL OK
 
-        [HttpPut]   //UPDATE METHOD
+        [HttpPut("{idPessoa}")]   //UPDATE METHOD
 
         // UPDATE A PERSON
         public async Task<ActionResult<List<Pessoa>>> AtualizaPessoas(Pessoa pessoa)
         {
             using var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
-            await connection.ExecuteAsync("update CadPessoa set nomePessoa = @nomePessoa, sobrenomenomePessoa = @sobrenomePesso, emailPessoa = @emailPessoa, enderecoPessoa = @enderecoPessoa," +
-                " , telefonePessoa = @telefonePessoa, nascimentoPessoa = @nascimentoPessoa", pessoa);
+            await connection.ExecuteAsync("update CadPessoa set idPessoa = @idPessoa, nomePessoa = @nomePessoa, sobrenomePessoa = @sobrenomePessoa, emailPessoa = @emailPessoa, enderecoPessoa = @enderecoPessoa," +
+                "telefonePessoa = @telefonePessoa, nascimentoPessoa = @nascimentoPessoa", pessoa);
             return Ok(await SelectAllPessoas(connection));
         }
-       
-      [HttpDelete("{idPessoa}")]   //DELETE METHOD
+
+        // TESTED - ALL OK
+        [HttpDelete("{idPessoa}")]   //DELETE METHOD
 
         // DELETE A PERSON
         public async Task<ActionResult<List<Pessoa>>> DeletaPessoas(int idPessoa)
         {
             using var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
-            await connection.ExecuteAsync("delete from CadPessoa where id = @Id", new { Id = idPessoa });
+            await connection.ExecuteAsync("delete from CadPessoa where idPessoa = @Id", new { Id = idPessoa });
             return Ok(await SelectAllPessoas(connection));
         }
 
